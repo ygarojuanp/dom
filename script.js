@@ -36,14 +36,14 @@ function adicionarTarefa(e) {
 
     inputTarefa.value = "";
     inputTarefa.focus();
-    
+
 }
 
-function salvarTarefas(){
+function salvarTarefas() {
     localStorage.setItem("tarefas", JSON.stringify(tarefas));
 }
 
-function renderizarTarefas(){
+function renderizarTarefas() {
     lista.innerHTML = "";
 
     tarefas.forEach(function (tarefa, indice) {
@@ -63,7 +63,7 @@ function renderizarTarefas(){
         }
 
         const colunaStatus = document.createElement("td");
-        if( tarefa.concluido) {
+        if (tarefa.concluido) {
             colunaStatus.innerHTML = '<span class="badge text-bg-success">Concluida</spam>';
         } else {
             colunaStatus.innerHTML = '<span class="badge text-bg-warning">Pendente</spam>';
@@ -83,15 +83,37 @@ function renderizarTarefas(){
         );
         botaoConcluir.addEventListener(
             "click",
-            function() {
+            function () {
                 alterarStatus(tarefa.id);
             }
         );
 
         const botaoEditar = document.createElement("button");
+        botaoEditar.textContent = "Editar";
+        botaoEditar.classList.add(
+            "btn",
+            "btn-primary",
+            "btn-sm",
+            "me-2"
+        );
+        botaoEditar.addEventListener(
+            "click",
+            function () {
+                editarTarefa(tarefa.id);
+            }
+        );
+
         const botaoExcluir = document.createElement("button");
+        botaoExcluir.textContent = "Excluir";
+        botaoExcluir.classList.add("btn", "btn-danger", "btn-sm");
+        botaoExcluir.addEventListener("click", function () {
+            excluirTarefa(tarefa.id);
+        });
 
         colunaAcoes.appendChild(botaoConcluir);
+        colunaAcoes.appendChild(botaoEditar);
+        colunaAcoes.appendChild(botaoExcluir);
+
 
 
 
@@ -103,16 +125,63 @@ function renderizarTarefas(){
         lista.appendChild(linha);
 
     });
+    atualizarContador();
 }
 
-function alterarStatus(id){
-    tarefas.forEach(function(tarefa){
+function alterarStatus(id) {
+    tarefas.forEach(function (tarefa) {
         if (tarefa.id === id) {
             tarefa.concluido = !tarefa.concluido;
         }
     });
     salvarTarefas();
     renderizarTarefas();
+}
+
+function editarTarefa(id) {
+    const tarefa = tarefas.find(function (tarefa) {
+        return tarefa.id === id;
+    });
+    if (!tarefa) {
+        return;
+    }
+    do {
+        const novoTexto = prompt("Digite um novo texto:", tarefa.texto);
+        if (novoTexto === null) {
+            return;
+        };
+
+        texto = novoTexto.trim();
+        if (texto === "") {
+            alert("A tarefa não pode ficar vazia.");
+        }
+    } while (texto === "");
+
+    tarefa.texto = texto;
+    salvarTarefas();
+    renderizarTarefas();
+
+}
+function excluirTarefa(id) {
+    const confirmar = confirm("Deseja realmente excluir essa tarefa?");
+    if (!confirmar) {
+        return;
+    }
+    tarefas = tarefas.filter(function (tarefa) {
+        return tarefa.id !== id;
+    });
+
+    salvarTarefas();
+    renderizarTarefas();
+}
+
+function atualizarContador() {
+    const quantidade = tarefas.length;
+    if (quantidade === 0) {
+        contador.textContent = "Não há tarefa";
+    } else {
+        contador.textContent = quantidade + "tarefa"
+    }
 }
 
 renderizarTarefas();
